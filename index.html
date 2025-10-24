@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report SPA Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutral (Gray-50/100) with a dynamic accent color (defaulting to Indigo) -->
+    <!-- Application Structure Plan: A single-page, top-down thematic guide. Structure: 1. Header/Nav, 2. The Objective, 3. Core Concepts (Interactive Goal -> Viz Selector), 4. Tech Stack (Grid), 5. Design Principles (Interactive Palette Selector), 6. The 4-Step Process (Clickable Stepper). This structure was chosen because the "report" is a *process guide*, so a linear, educational flow is the most intuitive for the user to understand the *content of the guide itself*. -->
+    <!-- Visualization & Content Choices: 1. Report Info: "Interactive Element Guide" -> Goal: Teach viz selection -> Viz: Interactive buttons + dynamic text + dynamic Chart.js canvas -> Interaction: Click button (e.g., "Compare") updates text (e.g., "Use Bar Charts") and updates chart to show a Bar Chart. -> Justification: Directly demonstrates the report's content using the report's rules (JS, Chart.js, Canvas). 2. Report Info: "The Process" -> Goal: Organize workflow -> Viz: HTML/Tailwind Stepper -> Interaction: Click step to see details. -> Justification: Clearest way to show a linear process (Goal: Organize). 3. Report Info: "Inspiration" -> Goal: Demonstrate styling -> Viz: Color-picker buttons -> Interaction: Click button updates accent colors via JS/Tailwind. -> Justification: Makes the "Design" section itself interactive. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link {
+            @apply px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200;
+        }
+        .nav-link.active {
+            @apply bg-indigo-100 text-indigo-700;
+        }
+        .goal-button {
+            @apply flex-1 px-4 py-3 text-sm md:text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+        }
+        .goal-button.active {
+            @apply bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700;
+        }
+        .accent-text {
+            @apply text-indigo-600;
+        }
+        .accent-bg {
+            @apply bg-indigo-600;
+        }
+        .accent-ring-focus:focus {
+            @apply ring-indigo-500;
+        }
+        .step {
+            @apply flex items-center p-4 bg-white rounded-lg shadow cursor-pointer hover:shadow-md transition-shadow;
+        }
+        .step.active {
+            @apply ring-2 ring-indigo-500 shadow-lg;
+        }
+        .step-number {
+            @apply flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white font-bold text-lg;
+        }
+        .step-content {
+            @apply ml-4;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header id="app-header" class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm shadow-md">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold accent-text">Interactive SPA Builder</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#objective" class="nav-link active">Objective</a>
+                        <a href="#core-concepts" class="nav-link">Core Concepts</a>
+                        <a href="#tech-stack" class="nav-link">Tech Stack</a>
+                        <a href="#design" class="nav-link">Design</a>
+                        <a href="#process" class="nav-link">Process</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <select id="mobile-nav" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="#objective">Objective</option>
+                        <option value="#core-concepts">Core Concepts</option>
+                        <option value="#tech-stack">Tech Stack</option>
+                        <option value="#design">Design</option>
+                        <option value="#process">Process</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-8 space-y-16">
+
+        <section id="objective" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 mb-4">The Objective: From Static to Dynamic</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                The primary goal is to translate any source report into an intuitive, interactive web experience. This application focuses on user understanding and ease of navigation, allowing users to easily explore, understand, and synthesize all key information through a dynamic, single-page structure.
+            </p>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 class="text-xl font-semibold mb-3 accent-text">Key Content to Focus On</h3>
+                <p class="text-gray-600 mb-4">The application should be ableto present the full spectrum of information, including:</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                    <li><span class="font-medium">Quantitative Data:</span> Stats, metrics, and projections.</li>
+                    <li><span class="font-medium">Qualitative Insights:</span> Findings, observations, and themes.</li>
+                    <li><span class="font-medium">Analysis & Structure:</span> Comparisons, trends, and processes.</li>
+                    <li><span class="font-medium">Textual Content:</span> Summaries, explanations, and conclusions.</li>
+                    <li><span class="font-medium">Interactive Elements:</span> Filters, selectors, and drill-downs.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="core-concepts" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 mb-4">Core Concepts: Interactive Selection</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                A key part of the design is choosing the right interactive element for the right goal. Select a goal below to see the recommended presentation methods and a live example of a chart that fits this goal.
+            </p>
+            <div class="flex flex-wrap gap-2 md:gap-4 mb-8">
+                <button class="goal-button active" data-goal="inform">Inform</button>
+                <button class="goal-button" data-goal="compare">Compare</button>
+                <button class="goal-button" data-goal="change">Change</button>
+                <button class="goal-button" data-goal="organize">Organize</button>
+                <button class="goal-button" data-goal="relationships">Relationships</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div id="goal-info" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 min-h-[300px]">
+                    <h3 id="goal-title" class="text-2xl font-semibold mb-4 accent-text">Inform</h3>
+                    <p id="goal-description" class="text-gray-700 mb-4">
+                        Use simple, clear visualizations to present key statistics and findings. This helps establish a baseline understanding for the user.
+                    </p>
+                    <h4 class="font-semibold text-gray-800 mb-2">Recommended Methods:</h4>
+                    <ul id="goal-methods" class="list-disc list-inside space-y-1 text-gray-700">
+                        <li>Dynamic Stat Cards</li>
+                        <li>Key Findings Lists</li>
+                        <li>Donut / Pie Charts</li>
+                        <li>Progress Indicators</li>
+                        <li>Contextual Text Blocks</li>
+                    </ul>
+                </div>
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech-stack" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 mb-4">The Required Tech Stack</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                This application must be built as a single HTML file, relying on a specific set of technologies for structure, style, and interactivity.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <span class="text-4xl">🏛️</span>
+                    <h3 class="text-xl font-semibold my-3">Structure (HTML & CSS)</h3>
+                    <p class="text-gray-700">
+                        A single HTML file provides the foundation. <strong class="accent-text">Tailwind CSS</strong> is used via CDN for all styling, ensuring a responsive, utility-first design.
+                    </p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <span class="text-4xl">💡</span>
+                    <h3 class="text-xl font-semibold my-3">Logic (JavaScript)</h3>
+                    <p class="text-gray-700">
+                        <strong class="accent-text">Vanilla JavaScript</strong> is used for all interaction handling, state management, data processing, and dynamic updates to both text and charts.
+                    </p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <span class="text-4xl">📚</span>
+                    <h3 class="text-xl font-semibold my-3">Libraries (Canvas-Based)</h3>
+                    <p class="text-gray-700">
+                        <strong class="accent-text">Chart.js</strong> or <strong class="accent-text">Plotly.js</strong> are mandatory for all charts, rendering on Canvas. <strong class="text-red-600 font-medium">No SVG or Mermaid.js</strong> are permitted.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="design" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 mb-4">Design & Styling Principles</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                The design must be clean, professional, and accessible. It should feature a light background, clear typography, and a calm, harmonious color palette. Try selecting an accent color below to see this principle in action.
+            </p>
+            <div class="flex flex-wrap gap-3 mb-8">
+                <span>Change Accent:</span>
+                <button class="palette-button w-8 h-8 rounded-full bg-indigo-600 border-2 border-indigo-700 ring-2 ring-offset-2 ring-indigo-500" data-color="indigo"></button>
+                <button class="palette-button w-8 h-8 rounded-full bg-blue-600 border-2 border-blue-700" data-color="blue"></button>
+                <button class="palette-button w-8 h-8 rounded-full bg-green-600 border-2 border-green-700" data-color="green"></button>
+                <button class="palette-button w-8 h-8 rounded-full bg-rose-600 border-2 border-rose-700" data-color="rose"></button>
+                <button class="palette-button w-8 h-8 rounded-full bg-orange-600 border-2 border-orange-700" data-color="orange"></button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-3">Data Clarity & Accessibility</h3>
+                    <p class="text-gray-700">
+                        All visualizations must be clearly labeled and easy to understand. The entire application must be responsive and accessible across all devices, from mobile to desktop.
+                    </p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-3">Engagement & Impact</h3>
+                    <p class="text-gray-700">
+                        Incorporate elements that encourage users to click, hover, and explore. The goal is to create an impactful experience that teaches and engages the user through interactive storytelling.
+                    </pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="process" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 mb-4">The 4-Step Implementation Process</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                Building this SPA involves a clear, 4-step process. Click each step to see the details.
+            </p>
+            
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="font-semibold text-lg">Analyze Report</h3>
+                    </div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="font-semibold text-lg">Design Structure & Flow</h3>
+                    </div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="font-semibold text-lg">Select Interactions</h3>
+                    </div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3 class="font-semibold text-lg">Implement & Populate</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step-details" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div class="step-pane active" data-pane="1">
+                    <h3 class="text-xl font-semibold mb-3">Step 1: Analyze Source Report</h3>
+                    <p class="text-gray-700">Deeply understand the report's content, goals, data, insights, and target audience. Identify the core message and key pieces of information that need to be conveyed to the user.</p>
+                </div>
+                <div class="step-pane hidden" data-pane="2">
+                    <h3 class="text-xl font-semibold mb-3">Step 2: Design Application Structure & Flow</h3>
+                    <p class="text-gray-700">Synthesize the report's content and devise the most effective interactive structure for the SPA. This structure might be thematic, functional, or dashboard-like, prioritizing ease of consumption over mirroring the report's original chapters.</p>
+                </div>
+                <div class="step-pane hidden" data-pane="3">
+                    <h3 class="text-xl font-semibold mb-3">Step 3: Select Optimal Presentation & Interactions</h3>
+                    <p class="text-gray-700">For each key piece of information, determine its goal, choose the best presentation method (chart, text, diagram) adhering to the "No SVG/Mermaid" rule, and define interactions that enhance exploration.</p>
+                </div>
+                <div class="step-pane hidden" data-pane="4">
+                    <h3 class="text-xl font-semibold mb-3">Step 4: Implement & Populate</h3>
+                    <p class="text-gray-700">Build the designed application layout using Tailwind, implement all JS logic for interactions, and populate the application with the data and text from the source report, ensuring everything is responsive and constrained.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 mt-16 border-t border-gray-200">
+        <p class="text-sm text-gray-500">A meta-application built from the provided report instructions.</p>
+    </footer>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            let myChart = null;
+            const ctx = document.getElementById('mainChart').getContext('2d');
+
+            const goalData = {
+                inform: {
+                    title: 'Inform',
+                    description: 'Use simple, clear visualizations to present key statistics and findings. This helps establish a baseline understanding for the user.',
+                    methods: ['Dynamic Stat Cards', 'Key Findings Lists', 'Donut / Pie Charts', 'Progress Indicators', 'Contextual Text Blocks'],
+                    chart: {
+                        type: 'pie',
+                        data: {
+                            labels: ['Category A', 'Category B', 'Category C', 'Category D'],
+                            datasets: [{
+                                label: 'Distribution',
+                                data: [300, 50, 100, 75],
+                                backgroundColor: ['#4f46e5', '#3b82f6', '#10b981', '#f59e0b']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: true, text: 'Sample: Category Distribution (Pie)' }
+                            }
+                        }
+                    }
+                },
+                compare: {
+                    title: 'Compare',
+                    description: 'Visually contrast multiple data points or categories. This is essential for highlighting differences, similarities, and relative performance.',
+                    methods: ['Bar / Stacked Bar Charts', 'Comparison Tables', 'Side-by-Side Layouts', 'Bubble Charts'],
+                    chart: {
+                        type: 'bar',
+                        data: {
+                            labels: ['Metric 1', 'Metric 2', 'Metric 3', 'Metric 4'],
+                            datasets: [
+                                {
+                                    label: 'Dataset X',
+                                    data: [65, 59, 80, 81],
+                                    backgroundColor: '#3b82f6',
+                                },
+                                {
+                                    label: 'Dataset Y',
+                                    data: [28, 48, 40, 19],
+                                    backgroundColor: '#10b981',
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: { y: { beginAtZero: true } },
+                            plugins: {
+                                title: { display: true, text: 'Sample: Metric Comparison (Bar)' }
+                            }
+                        }
+                    }
+                },
+                change: {
+                    title: 'Change',
+                    description: 'Illustrate trends, patterns, and developments over time. This helps users understand historical context and future projections.',
+                    methods: ['Line / Area Charts', 'Timelines / Process Flows', 'Trend Description Text'],
+                    chart: {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Revenue Over Time',
+                                data: [12, 19, 3, 5, 2, 3],
+                                fill: false,
+                                borderColor: '#4f46e5',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: { display: true, text: 'Sample: Change Over Time (Line)' }
+                            }
+                        }
+                    }
+                },
+                organize: {
+                    title: 'Organize',
+                    description: 'Structure complex information, hierarchies, or processes into a clear, understandable format. This is key for explaining systems or workflows.',
+                    methods: ['Interactive Lists / Tables', 'HTML/CSS Flowcharts', 'Matrix Layouts', 'Styled Hierarchies'],
+                    chart: {
+                        type: 'bar',
+                        data: {
+                            labels: ['Step 1', 'Step 2', 'Step 3', 'Step 4'],
+                            datasets: [{
+                                label: 'Time per Step',
+                                data: [10, 25, 15, 30],
+                                backgroundColor: ['#4f46e5', '#3b82f6', '#10b981', '#f59e0b']
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                title: { display: true, text: 'Sample: Process Steps (Horizontal Bar)' }
+                            }
+                        }
+                    }
+                },
+                relationships: {
+                    title: 'Relationships',
+                    description: 'Show correlations, connections, and distributions between two or more variables. This is for deeper analysis and insight discovery.',
+                    methods: ['Scatter / Distribution Plots', 'Simple Network Maps (HTML/CSS)', 'Cross-filtering UI'],
+                    chart: {
+                        type: 'scatter',
+                        data: {
+                            datasets: [{
+                                label: 'Cost vs. Rating',
+                                data: [{x: 20, y: 3}, {x: 10, y: 5}, {x: 30, y: 4.5}, {x: 15, y: 4}, {x: 25, y: 2.5}, {x: 40, y: 3.5}],
+                                backgroundColor: '#ef4444'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: { display: true, text: 'Sample: Relationship (Scatter)' }
+                            }
+                        }
+                    }
+                }
+            };
+
+            function updateChart(chartConfig) {
+                if (myChart) {
+                    myChart.destroy();
+                }
+                myChart = new Chart(ctx, chartConfig);
+            }
+
+            const goalButtons = document.querySelectorAll('.goal-button');
+            const goalTitle = document.getElementById('goal-title');
+            const goalDescription = document.getElementById('goal-description');
+            const goalMethodsList = document.getElementById('goal-methods');
+
+            goalButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    goalButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    const goal = button.dataset.goal;
+                    const data = goalData[goal];
+
+                    goalTitle.textContent = data.title;
+                    goalDescription.textContent = data.description;
+                    
+                    goalMethodsList.innerHTML = '';
+                    data.methods.forEach(method => {
+                        const li = document.createElement('li');
+                        li.textContent = method;
+                        goalMethodsList.appendChild(li);
+                    });
+
+                    updateChart(data.chart);
+                });
+            });
+
+            updateChart(goalData.inform.chart);
+
+            const paletteButtons = document.querySelectorAll('.palette-button');
+            const header = document.getElementById('app-header');
+            const elementsToUpdate = {
+                text: document.querySelectorAll('.accent-text'),
+                bg: document.querySelectorAll('.accent-bg'),
+                ring: document.querySelectorAll('.accent-ring-focus'),
+                stepNumber: document.querySelectorAll('.step-number'),
+                goalButton: document.querySelectorAll('.goal-button.active'),
+                navLink: document.querySelectorAll('.nav-link.active')
+            };
+
+            const colorMap = {
+                indigo: { text: 'text-indigo-600', bg: 'bg-indigo-600', ring: 'ring-indigo-500', nav: 'bg-indigo-100 text-indigo-700' },
+                blue: { text: 'text-blue-600', bg: 'bg-blue-600', ring: 'ring-blue-500', nav: 'bg-blue-100 text-blue-700' },
+                green: { text: 'text-green-600', bg: 'bg-green-600', ring: 'ring-green-500', nav: 'bg-green-100 text-green-700' },
+                rose: { text: 'text-rose-600', bg: 'bg-rose-600', ring: 'ring-rose-500', nav: 'bg-rose-100 text-rose-700' },
+                orange: { text: 'text-orange-600', bg: 'bg-orange-600', ring: 'ring-orange-500', nav: 'bg-orange-100 text-orange-700' }
+            };
+            
+            const allColors = Object.keys(colorMap);
+
+            function applyColors(color) {
+                const classes = colorMap[color];
+                if (!classes) return;
+
+                const removeText = allColors.map(c => colorMap[c].text).join(' ');
+                const removeBg = allColors.map(c => colorMap[c].bg).join(' ');
+                const removeRing = allColors.map(c => colorMap[c].ring).join(' ');
+                const removeNav = allColors.map(c => colorMap[c].nav.split(' ')).flat().join(' ');
+
+                document.querySelectorAll('.accent-text').forEach(el => {
+                    el.classList.remove(...removeText.split(' '));
+                    el.classList.add(classes.text);
+                });
+                
+                document.querySelectorAll('.accent-bg').forEach(el => {
+                    el.classList.remove(...removeBg.split(' '));
+                    el.classList.add(classes.bg);
+                });
+
+                document.querySelectorAll('.accent-ring-focus').forEach(el => {
+                    el.classList.remove(...removeRing.split(' '));
+                    el.classList.add(classes.ring);
+                });
+
+                document.querySelectorAll('.step-number').forEach(el => {
+                    el.classList.remove(...removeBg.split(' '));
+                    el.classList.add(classes.bg);
+                });
+                
+                document.querySelectorAll('.goal-button.active').forEach(el => {
+                    el.classList.remove(...removeBg.split(' '), ...allColors.map(c => `border-${c}-600`), ...allColors.map(c => `hover:bg-${c}-700`));
+                    el.classList.add(classes.bg, `border-${color}-600`, `hover:bg-${color}-700`);
+                });
+
+                document.querySelectorAll('.nav-link.active').forEach(el => {
+                    el.classList.remove(...removeNav.split(' '));
+                    el.classList.add(...classes.nav.split(' '));
+                });
+            }
+
+            paletteButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    paletteButtons.forEach(btn => btn.classList.remove('ring-2', 'ring-offset-2', ...allColors.map(c => colorMap[c].ring)));
+                    const color = button.dataset.color;
+                    button.classList.add('ring-2', 'ring-offset-2', colorMap[color].ring);
+                    applyColors(color);
+                });
+            });
+
+            const steps = document.querySelectorAll('.step');
+            const stepPanes = document.querySelectorAll('.step-pane');
+
+            steps.forEach(step => {
+                step.addEventListener('click', () => {
+                    steps.forEach(s => s.classList.remove('active'));
+                    step.classList.add('active');
+
+                    const stepNum = step.dataset.step;
+                    stepPanes.forEach(pane => {
+                        if (pane.dataset.pane === stepNum) {
+                            pane.classList.remove('hidden');
+                        } else {
+                            pane.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileNav = document.getElementById('mobile-nav');
+
+            function setActiveLink(hash) {
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === hash) {
+                        link.classList.add('active', ...colorMap[document.querySelector('.palette-button.ring-2').dataset.color].nav.split(' '));
+                    } else {
+                        link.classList.remove('active', ...allColors.map(c => colorMap[c].nav.split(' ')).flat());
+                    }
+                });
+                if (mobileNav.value !== hash) {
+                    mobileNav.value = hash;
+                }
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+                    window.history.pushState(null, null, targetId);
+                    setActiveLink(targetId);
+                });
+            });
+            
+            mobileNav.addEventListener('change', (e) => {
+                const targetId = e.target.value;
+                document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+                window.history.pushState(null, null, targetId);
+                setActiveLink(targetId);
+            });
+
+            const sections = document.querySelectorAll('section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = '#' + entry.target.id;
+                        setActiveLink(id);
+                    }
+                });
+            }, { rootMargin: '-20% 0px -70% 0px', threshold: 0.1 });
+
+            sections.forEach(section => observer.observe(section));
+            setActiveLink(window.location.hash || '#objective');
+
+        });
+    </script>
+</body>
+</html>
